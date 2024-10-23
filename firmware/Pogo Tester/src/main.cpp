@@ -81,20 +81,6 @@ void fullTest()
     return;
   }
 
-  // attinySerial.write(5);
-  // if (receive() != 5)
-  // {
-  //   Serial.println("Pin 5 damages UART");
-  //   return;
-  // }
-
-  // attinySerial.write(8);
-  // if (receive() != 8)
-  // {
-  //   Serial.println("Pin 8 damages UART");
-  //   return;
-  // }
-
   // pinTests
   for (int i = 0; i < 15; i++) {
     if (i != 4 && i != 5 && i != 6)
@@ -131,6 +117,7 @@ void loop()
 {
   if (Serial.available()) {
     Serial.read();
+    Serial.println("TODO test UART shorts!");
     fullTest();
   }
 }
