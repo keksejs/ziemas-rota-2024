@@ -23,22 +23,12 @@ SoftwareSerial attinySerial(5, 4); // TX ; RX
 #define TP5_PIN 16 // PA3
 #define TP6_PIN 0  // PA4
 
-const uint8_t pogo_pins[15] = {
-    STORE_PIN,
-    PIR_PIN,
-    CLEAR_PIN,
-    OUT_EN_PIN,
-    TX_PIN,
-    RX_PIN,
-    40,
-    CLK_PIN,
-    DATA_PIN,
-    ADC_PIN,
-    ADC_EN_PIN,
-    TP1_PIN,
-    TP2_PIN,
-    TP3_PIN,
-    TP4_PIN};
+const uint8_t pogo_pins[15] = {STORE_PIN, PIR_PIN, OUT_EN_PIN, CLEAR_PIN,
+                               TX_PIN,    RX_PIN,  40,         CLK_PIN,
+                               DATA_PIN,  ADC_PIN, ADC_EN_PIN, TP2_PIN,
+                               TP3_PIN,   TP4_PIN, TP5_PIN};
+
+uint16_t test_num = 1;
 
 uint8_t receive()
 {
@@ -54,46 +44,40 @@ void readPins(uint8_t picoPin)
   for (int i = 0; i < 16; i++)
     pinStates[i] = digitalRead(i);
 
-  if (!pinStates[picoPin])
-  {
-    Serial.print("PIN ");
+  if (!pinStates[picoPin]) {
     Serial.print(picoPin);
-    Serial.println(" GOOD");
-  }
-  else
-  {
-    Serial.print("!!! PIN ");
+    Serial.print(" ✔️ ");
+  } else {
     Serial.print(picoPin);
-    Serial.println(" NO CONTACT !!!");
+    Serial.print(" ❌ ");
   }
 
-  // for (int i = 0; i < 16; i++)
-  // {
-  //   if (i == picoPin)
-  //     break;
-  //   if (!pinStates[i] && pogo_pins[i] != RX_PIN && pogo_pins[i] != TX_PIN)
-  //   {
-  //     Serial.print("!!! SHORT ON PIN ");
-  //     Serial.println(i);
-  //   }
-  // }
+  for (int i = 0; i < 15; i++) {
+    if (!pinStates[i] && (pogo_pins[i] != RX_PIN) && (pogo_pins[i] != TX_PIN) &&
+        (i != picoPin)) {
+      Serial.print("🔥");
+      Serial.print(i);
+      Serial.print(" ");
+    }
+  }
+  Serial.println();
 }
 
 void fullTest()
 {
-  Serial.println("\n\n\n\nTEST START\n——————————");
+  Serial.print("\n\n———— START TEST #");
+  Serial.print(test_num);
+  Serial.println(" ————\n");
 
   // attinySerial.write(30);
   // delay(10);
   // uint8_t msg = attinySerial.read();
-  // if (msg == 30)
-  // {
-  //   Serial.println("UART good");
-  // }
-  // else
-  // {
+  // if (msg == 30) {
+  //   Serial.println("UART ✔️");
+  // } else {
+  //   Serial.println("UART ❌");
+  //   Serial.print("Received: ");
   //   Serial.println(msg);
-  //   Serial.println("UART not working");
   //   return;
   // }
 
@@ -112,8 +96,7 @@ void fullTest()
   // }
 
   // pinTests
-  for (int i = 0; i < 15; i++)
-  {
+  for (int i = 0; i < 15; i++) {
     if (i != 4 && i != 5 && i != 6)
     {
       uint8_t picoPin = i;
@@ -127,6 +110,11 @@ void fullTest()
       delay(100);
     }
   }
+
+  Serial.print("\n———— END TEST #");
+  Serial.print(test_num);
+  Serial.println(" ————");
+  test_num++;
 }
 
 void setup()
@@ -141,6 +129,8 @@ void setup()
 
 void loop()
 {
-  fullTest();
-  delay(5000);
+  if (Serial.available()) {
+    Serial.read();
+    fullTest();
+  }
 }
