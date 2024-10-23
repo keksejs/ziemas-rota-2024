@@ -69,17 +69,17 @@ void fullTest()
   Serial.print(test_num);
   Serial.println(" ————\n");
 
-  // attinySerial.write(30);
-  // delay(10);
-  // uint8_t msg = attinySerial.read();
-  // if (msg == 30) {
-  //   Serial.println("UART ✔️");
-  // } else {
-  //   Serial.println("UART ❌");
-  //   Serial.print("Received: ");
-  //   Serial.println(msg);
-  //   return;
-  // }
+  attinySerial.write(30);
+  delay(10);
+  uint8_t msg = attinySerial.read();
+  if (msg == 30) {
+    Serial.println("UART ✔️");
+  } else {
+    Serial.println("UART ❌");
+    Serial.print("Received: ");
+    Serial.println(msg);
+    return;
+  }
 
   // attinySerial.write(5);
   // if (receive() != 5)
