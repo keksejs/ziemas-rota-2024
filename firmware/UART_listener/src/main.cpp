@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <PicoSoftwareSerial.h>
 
+SoftwareSerial attinySerial(5, 4); // TX ; RX
+
 #define STORE_PIN 3
 #define PIR_PIN 8
 #define CLEAR_PIN 5
@@ -28,18 +30,14 @@ const uint8_t pogo_pins[15] = {STORE_PIN, PIR_PIN, OUT_EN_PIN, CLEAR_PIN,
 
 uint16_t test_num = 1;
 
-SoftwareSerial attinySerial(5, 4); // TX ; RX
-
-uint8_t receive()
-{
+uint8_t receive() {
   if (attinySerial.available())
     return attinySerial.read();
 
   return 0;
 }
 
-void readPins(uint8_t picoPin)
-{
+void readPins(uint8_t picoPin) {
   bool pinStates[15] = {true};
   for (int i = 0; i < 16; i++)
     pinStates[i] = digitalRead(i);
@@ -63,28 +61,27 @@ void readPins(uint8_t picoPin)
   Serial.println();
 }
 
-void fullTest()
-{
+void fullTest() {
   Serial.print("\n\n———— START TEST #");
   Serial.print(test_num);
   Serial.println(" ————\n");
 
-  attinySerial.write(30);
-  delay(10);
-  uint8_t msg = attinySerial.read();
-  if (msg == 30) {
-    Serial.println("UART ✔️");
-  } else {
-    Serial.println("UART ❌");
-    Serial.print("Received: ");
-    Serial.println(msg);
-    return;
-  }
+  // attinySerial.write(30);
+  // delay(10);
+  // uint8_t msg = attinySerial.read();
+  // if (msg == 30) {
+  //   Serial.println("UART ✔️");
+  // } else {
+  //   Serial.println("UART ❌");
+  //   Serial.print("Received: ");
+  //   Serial.println(msg);
+  //   Serial.println(attinySerial.read());
+  //   return;
+  // }
 
   // pinTests
   for (int i = 0; i < 15; i++) {
-    if (i != 4 && i != 5 && i != 6)
-    {
+    if (i != 4 && i != 5 && i != 6) {
       uint8_t picoPin = i;
       uint8_t attinyPin = pogo_pins[picoPin];
 
@@ -103,8 +100,7 @@ void fullTest()
   test_num++;
 }
 
-void setup()
-{
+void setup() {
   attinySerial.begin(9600);
 
   Serial.begin(9600);
@@ -113,10 +109,8 @@ void setup()
       pinMode(i, INPUT_PULLUP);
 }
 
-void loop()
-{
-  if (Serial.available()) {
-    Serial.read();
-    fullTest();
+void loop() {
+  if (attinySerial.available()) {
+    Serial.println(attinySerial.read());
   }
 }

@@ -5,7 +5,6 @@
 #define OUT_EN_PIN 2
 #define TX_PIN 7    // UART tests already
 #define RX_PIN 6    // UART tests already
-#define CLEAR_PIN 5 // bad pogo
 #define CLK_PIN 4
 #define DATA_PIN 1
 #define ADC_PIN 11
