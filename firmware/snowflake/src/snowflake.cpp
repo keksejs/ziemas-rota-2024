@@ -3,6 +3,16 @@
 #include <Arduino.h>
 #include <avr/sleep.h>
 
+const Snowflake::LED Snowflake::outerCircle[18] = {G, H, I, J, K, L, M, N, O,
+                                                   P, Q, R, S, T, U, V, W, X};
+const Snowflake::LED Snowflake::innerCircle[6] = {A, B, C, D, E, F};
+const Snowflake::LED Snowflake::branch0[4] = {A, X, G, H};
+const Snowflake::LED Snowflake::branch1[4] = {B, I, J, K};
+const Snowflake::LED Snowflake::branch2[4] = {C, L, M, N};
+const Snowflake::LED Snowflake::branch3[4] = {D, O, P, Q};
+const Snowflake::LED Snowflake::branch4[4] = {E, R, S, T};
+const Snowflake::LED Snowflake::branch5[4] = {F, U, V, W};
+
 void Snowflake::init() {
   pinMode(STORE_PIN, OUTPUT);
   pinMode(CLEAR_PIN, OUTPUT);
@@ -50,6 +60,32 @@ void Snowflake::randomAnimation() {
   data[2] = random(256);
   _shiftAll(data);
 }
+
+void Snowflake::blinkAnimation() {
+  static bool onstate = false;
+
+  if (onstate) {
+    uint8_t data[3] = {0, 0, 0};
+    _shiftAll(data);
+  } else {
+    uint8_t data[3] = {255, 255, 255};
+    _shiftAll(data);
+  }
+  onstate ^= true;
+}
+
+void Snowflake::testAnimation() {
+  for (uint8_t i = 0; i < 18; i++) {
+    _shiftAll_u24_t(static_cast<uint32_t>(outerCircle[i]));
+    delay(200);
+  }
+  for (uint8_t i = 0; i < 6; i++) {
+    _shiftAll_u24_t(static_cast<uint32_t>(innerCircle[i]));
+    delay(200);
+  }
+}
+
+void Snowflake::showBatteryState() {}
 
 void Snowflake::light(bool on) { digitalWrite(OUT_EN_PIN, !on); }
 
@@ -111,5 +147,13 @@ void Snowflake::_shiftAll(uint8_t *data) {
   shiftOut(DATA_PIN, CLK_PIN, MSBFIRST, data[0]);
   shiftOut(DATA_PIN, CLK_PIN, MSBFIRST, data[1]);
   shiftOut(DATA_PIN, CLK_PIN, MSBFIRST, data[2]);
+  digitalWrite(STORE_PIN, HIGH);
+}
+
+void Snowflake::_shiftAll_u24_t(uint32_t data) {
+  digitalWrite(STORE_PIN, LOW);
+  shiftOut(DATA_PIN, CLK_PIN, MSBFIRST, (data >> 16) & 0xFF);
+  shiftOut(DATA_PIN, CLK_PIN, MSBFIRST, (data >> 8) & 0xFF);
+  shiftOut(DATA_PIN, CLK_PIN, MSBFIRST, data & 0xFF);
   digitalWrite(STORE_PIN, HIGH);
 }

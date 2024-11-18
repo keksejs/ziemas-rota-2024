@@ -12,12 +12,17 @@ void loop() {
   Snowflake::bitShiftPowerOn();
 
   if (!digitalRead(PIR_PIN)) {
-    for (int i = 0; i < 30; i++) {
-      // Snowflake::randomAnimation();
-      Snowflake::circularAnimation(2);
-      delay(100);
-    }
+
+    // for (int i = 0; i < 10; i++) {
+    //   // Snowflake::randomAnimation();
+    //   // Snowflake::circularAnimation(3);
+    //   Snowflake::blinkAnimation();
+    //   delay(200);
+    // }
+
     // Snowflake::clear();
+
+    Snowflake::testAnimation();
   }
   // for (int i = 0; i < 300; i++) {
   //   digitalWrite(OUT_EN_PIN, HIGH);
