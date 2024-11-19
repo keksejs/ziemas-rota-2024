@@ -18,6 +18,8 @@ public:
   static void circularAnimation(uint8_t divider);
   static void blinkAnimation();
   static void showBatteryState();
+  static void spinningAnimation();
+  static void outwardsAnimation();
 
   static void testAnimation();
 
@@ -31,6 +33,7 @@ private:
   static void _shiftSingle(bool data);
   static void _shiftAll(uint8_t *data);
   static void _shiftAll_u24_t(uint32_t data);
+  static void _fadeDelay(uint16_t ms);
 
   ////////////////////////////////////////////////////////////
   // LED mappings for easier symmetrical animation progamming:
@@ -42,10 +45,5 @@ private:
 
   // Branch index goes clockwise starting from the top branch
   // Branch LED index goes clockwise starting from the center LED
-  static const LED branch0[4];
-  static const LED branch1[4];
-  static const LED branch2[4];
-  static const LED branch3[4];
-  static const LED branch4[4];
-  static const LED branch5[4];
+  static const LED branch[6][4];
 };

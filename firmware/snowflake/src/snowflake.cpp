@@ -6,12 +6,9 @@
 const Snowflake::LED Snowflake::outerCircle[18] = {G, H, I, J, K, L, M, N, O,
                                                    P, Q, R, S, T, U, V, W, X};
 const Snowflake::LED Snowflake::innerCircle[6] = {A, B, C, D, E, F};
-const Snowflake::LED Snowflake::branch0[4] = {A, X, G, H};
-const Snowflake::LED Snowflake::branch1[4] = {B, I, J, K};
-const Snowflake::LED Snowflake::branch2[4] = {C, L, M, N};
-const Snowflake::LED Snowflake::branch3[4] = {D, O, P, Q};
-const Snowflake::LED Snowflake::branch4[4] = {E, R, S, T};
-const Snowflake::LED Snowflake::branch5[4] = {F, U, V, W};
+const Snowflake::LED Snowflake::branch[6][4] = {{A, X, G, H}, {B, I, J, K},
+                                                {C, L, M, N}, {D, O, P, Q},
+                                                {E, R, S, T}, {F, U, V, W}};
 
 void Snowflake::init() {
   pinMode(STORE_PIN, OUTPUT);
@@ -46,19 +43,57 @@ void Snowflake::init() {
   pinMode(RX_PIN, INPUT);
 }
 
+void Snowflake::testAnimation() {}
+
+void Snowflake::outwardsAnimation() {
+  for (uint8_t c = 0; c < 2; c++)
+    for (uint8_t j = 0; j < 2; j++)
+      for (uint8_t i = 0; i < 3; i++) {
+        uint32_t data = 0;
+        if (i >= 0) {
+          data += branch[0 + j][0];
+          data += branch[2 + j][0];
+          data += branch[4 + j][0];
+        }
+        if (i >= 1) {
+          data += branch[0 + j][1];
+          data += branch[2 + j][1];
+          data += branch[4 + j][1];
+          data += branch[0 + j][3];
+          data += branch[2 + j][3];
+          data += branch[4 + j][3];
+        }
+        if (i == 2) {
+          data += branch[0 + j][2];
+          data += branch[2 + j][2];
+          data += branch[4 + j][2];
+        }
+
+        _shiftAll_u24_t(data);
+        delay(150);
+      }
+}
+
 void Snowflake::circularAnimation(uint8_t divider) {
-  static uint8_t counter = 0;
-  counter++;
-  counter = counter > divider ? 1 : counter;
-  _shiftSingle(counter == 1);
+  uint8_t counter = 0;
+  for (uint8_t i = 0; i < 30; i++) {
+    counter++;
+    counter = counter > divider ? 1 : counter;
+    _shiftSingle(counter == 1);
+    _fadeDelay(300);
+  }
 }
 
 void Snowflake::randomAnimation() {
   uint8_t data[3] = {0, 0, 0};
-  data[0] = random(256);
-  data[1] = random(256);
-  data[2] = random(256);
-  _shiftAll(data);
+  for (uint8_t i = 0; i < 30; i++) {
+    data[0] = random(256);
+    data[1] = random(256);
+    data[2] = random(256);
+    _shiftAll(data);
+
+    _fadeDelay(100);
+  }
 }
 
 void Snowflake::blinkAnimation() {
@@ -74,14 +109,41 @@ void Snowflake::blinkAnimation() {
   onstate ^= true;
 }
 
-void Snowflake::testAnimation() {
-  for (uint8_t i = 0; i < 18; i++) {
-    _shiftAll_u24_t(static_cast<uint32_t>(outerCircle[i]));
-    delay(200);
-  }
-  for (uint8_t i = 0; i < 6; i++) {
-    _shiftAll_u24_t(static_cast<uint32_t>(innerCircle[i]));
-    delay(200);
+void Snowflake::spinningAnimation() {
+  for (uint8_t i = 0; i < 2; i++) {
+    for (uint8_t i = 0; i < 19; i++) {
+      uint32_t data = 0;
+      if (i == 0)
+        data = outerCircle[i];
+      else if (i == 18)
+        data = outerCircle[0] + outerCircle[17];
+      else {
+        data = outerCircle[i] + outerCircle[i - 1];
+      }
+      _shiftAll_u24_t(data);
+      delay(30);
+    }
+    for (uint8_t i = 0; i < 6; i++) {
+      uint32_t data = 0;
+      if (i == 0)
+        data = innerCircle[i] + outerCircle[0];
+      else {
+        data = innerCircle[i] + innerCircle[i - 1];
+      }
+      _shiftAll_u24_t(data);
+      delay(30);
+    }
+
+    for (uint8_t i = 0; i < 6; i++) {
+      uint32_t data = 0;
+      if (i == 0)
+        data = innerCircle[i] + innerCircle[5];
+      else {
+        data = innerCircle[i] + innerCircle[i - 1];
+      }
+      _shiftAll_u24_t(data);
+      delay(30);
+    }
   }
 }
 
@@ -156,4 +218,22 @@ void Snowflake::_shiftAll_u24_t(uint32_t data) {
   shiftOut(DATA_PIN, CLK_PIN, MSBFIRST, (data >> 8) & 0xFF);
   shiftOut(DATA_PIN, CLK_PIN, MSBFIRST, data & 0xFF);
   digitalWrite(STORE_PIN, HIGH);
+}
+
+void Snowflake::_fadeDelay(uint16_t ms) {
+  const uint16_t f = 100;
+  const uint32_t T_micros = 1e6 / f;
+  const uint16_t count = ms / (1000 / f);
+  const uint32_t delta = T_micros / count;
+
+  uint32_t onTime_micros = 0;
+  for (int n = 0; n < count; n++) {
+    digitalWrite(OUT_EN_PIN, HIGH);
+    delayMicroseconds(T_micros - onTime_micros);
+    digitalWrite(OUT_EN_PIN, LOW);
+    delayMicroseconds(onTime_micros);
+    onTime_micros += delta;
+  }
+
+  digitalWrite(OUT_EN_PIN, LOW); // active low
 }
