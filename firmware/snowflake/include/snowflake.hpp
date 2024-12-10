@@ -1,6 +1,7 @@
 #include <Arduino.h>
 
-class Snowflake {
+class Snowflake
+{
   // clang-format off
   enum LED {
     A = 1UL << 1, B = 1UL << 15, C = 1UL << 9, D = 1UL << 23,
@@ -17,7 +18,6 @@ public:
   static void randomAnimation();
   static void circularAnimation(uint8_t divider);
   static void blinkAnimation();
-  static void showBatteryState();
   static void spinningAnimation();
   static void outwardsAnimation();
 

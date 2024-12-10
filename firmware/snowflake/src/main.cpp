@@ -2,52 +2,52 @@
 #include "snowflake.hpp"
 #include <Arduino.h>
 
-void setup() {
+uint8_t last_animation = 0;
+uint8_t animation_i = 1;
+void setup()
+{
   Snowflake::init();
-  // Snowflake::clear();
-  // Snowflake::light(true);
-}
-
-void loop() {
-  Snowflake::bitShiftPowerOn();
-  Snowflake::circularAnimation(2);
   Snowflake::clear();
-  Snowflake::circularAnimation(3);
-  Snowflake::clear();
-  Snowflake::circularAnimation(5);
-  Snowflake::clear();
-  Snowflake::outwardsAnimation();
-  Snowflake::clear();
-  Snowflake::randomAnimation();
-  Snowflake::clear();
-  Snowflake::spinningAnimation();
-
   Snowflake::bitShiftPowerOff();
-  delay(500);
-
-  // Snowflake::bitShiftPowerOn();
-
-  // if (!digitalRead(PIR_PIN)) {
-  //   // for (int i = 0; i < 10; i++) {
-  //   //   // Snowflake::randomAnimation();
-  //   //   // Snowflake::circularAnimation(3);
-  //   //   Snowflake::blinkAnimation();
-  //   //   delay(200);
-  //   // }
-
-  //   // Snowflake::clear();
-  // }
-  // // for (int i = 0; i < 300; i++) {
-  // //   digitalWrite(OUT_EN_PIN, HIGH);
-  // //   delay(1);
-  // //   digitalWrite(OUT_EN_PIN, !(i % 2));
-  // //   delay(1);
-  // // }
-  // Snowflake::bitShiftPowerOff();
-  // Snowflake::sleep();
 }
 
-ISR(PORTB_PORT_vect) {
+void loop()
+{
+
+  if (!digitalRead(PIR_PIN))
+  {
+    Snowflake::bitShiftPowerOn();
+    while (animation_i == last_animation)
+      animation_i = random(5);
+
+    last_animation = animation_i;
+    switch (animation_i)
+    {
+    case 0:
+      Snowflake::circularAnimation(2);
+      break;
+    case 1:
+      Snowflake::circularAnimation(3);
+      break;
+    case 2:
+      Snowflake::circularAnimation(5);
+      break;
+    case 3:
+      Snowflake::outwardsAnimation();
+      break;
+    case 4:
+      Snowflake::spinningAnimation();
+      break;
+    }
+
+    Snowflake::clear();
+  }
+  Snowflake::bitShiftPowerOff();
+  Snowflake::sleep();
+}
+
+ISR(PORTB_PORT_vect)
+{
   cli();                          // disable global interrupts
   PORTB.PIN1CTRL &= ~PORT_ISC_gm; // disable interrupt.
   VPORTB.INTFLAGS |= true << 1;   // clear interrupt flag on pin PB1
