@@ -18,25 +18,33 @@ void loop()
   {
     Snowflake::bitShiftPowerOn();
     while (animation_i == last_animation)
-      animation_i = random(5);
+      animation_i = random(8);
 
     last_animation = animation_i;
-    switch (animation_i)
-    {
+    switch (animation_i) {
     case 0:
-      Snowflake::circularAnimation(2);
+      Snowflake::circularAnimation(2, 200, 35);
       break;
     case 1:
-      Snowflake::circularAnimation(3);
+      Snowflake::circularAnimation(3, 100, 50);
       break;
     case 2:
-      Snowflake::circularAnimation(5);
-      break;
-    case 3:
       Snowflake::outwardsAnimation();
       break;
-    case 4:
+    case 3:
       Snowflake::spinningAnimation();
+      break;
+    case 4:
+      Snowflake::fadingStarsAnimation();
+      break;
+    case 5:
+      Snowflake::circlePulseAnimation();
+      break;
+    case 6:
+      Snowflake::matrixAnimation();
+      break;
+    case 7:
+      Snowflake::branchAnimation();
       break;
     }
 

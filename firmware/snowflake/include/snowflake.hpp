@@ -1,7 +1,6 @@
 #include <Arduino.h>
 
-class Snowflake
-{
+class Snowflake {
   // clang-format off
   enum LED {
     A = 1UL << 1, B = 1UL << 15, C = 1UL << 9, D = 1UL << 23,
@@ -16,12 +15,15 @@ class Snowflake
 public:
   static void init();
   static void randomAnimation();
-  static void circularAnimation(uint8_t divider);
+  static void circularAnimation(uint8_t divider, uint16_t delayTime,
+                                uint8_t count);
   static void blinkAnimation();
   static void spinningAnimation();
   static void outwardsAnimation();
-
-  static void testAnimation();
+  static void fadingStarsAnimation();
+  static void circlePulseAnimation();
+  static void matrixAnimation();
+  static void branchAnimation();
 
   static void light(bool on);
   static void clear();
@@ -33,7 +35,7 @@ private:
   static void _shiftSingle(bool data);
   static void _shiftAll(uint8_t *data);
   static void _shiftAll_u24_t(uint32_t data);
-  static void _fadeDelay(uint16_t ms);
+  static void _fadeDelay(uint16_t ms, bool fadeIn = true);
 
   ////////////////////////////////////////////////////////////
   // LED mappings for easier symmetrical animation progamming:
